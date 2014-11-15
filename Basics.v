@@ -932,6 +932,57 @@ Proof.
         converting it to unary and then incrementing.
 *)
 
+Inductive bin : Type :=
+  | Z : bin
+  | Dub : bin -> bin
+  | DubPlus : bin -> bin.
+
+Definition bin_inc (n : bin) : bin :=
+  match n with
+    | Z => DubPlus Z
+    | Dub b1 => DubPlus b1
+    | DubPlus b1 => Dub (DubPlus b1)
+  end.
+
+Fixpoint bin_to_uni (n : bin) : nat :=
+  match n with
+    | Z => O
+    | Dub b1 => plus (bin_to_uni b1) (bin_to_uni b1)
+    | DubPlus b1 => S (plus (bin_to_uni b1) (bin_to_uni b1))
+  end.
+
+Example test_bin_to_uni_zero : bin_to_uni Z = O.
+simpl. reflexivity. Qed.
+
+Example test_bin_to_uni_dub_plus : bin_to_uni (DubPlus Z) = S O.
+simpl. reflexivity. Qed.
+
+Example test_bin_to_uni_dub : bin_to_uni (Dub (DubPlus Z)) = S (S O).
+simpl. reflexivity. Qed.
+
+Example test_inc_zero : bin_inc Z = (DubPlus Z).
+simpl. reflexivity. Qed.
+
+Example test_inc_dub_plus : bin_inc (DubPlus Z) = Dub (DubPlus Z).
+simpl. reflexivity. Qed.
+
+Example test_inc_dub : bin_inc (Dub Z) = DubPlus Z.
+simpl. reflexivity. Qed.
+
+Theorem assoc_bin_uni :
+  forall (b : bin),
+    bin_to_uni (bin_inc b) = plus (S O) (bin_to_uni b).
+
+Proof.
+  intros b.
+  simpl.
+  destruct b.
+  simpl.
+  reflexivity.
+  simpl.
+  reflexivity.
+
+
 (* FILL IN HERE *)
 (** [] *)
 
