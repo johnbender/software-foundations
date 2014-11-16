@@ -1,5 +1,6 @@
 
 
+
 (** * Basics: Functional Programming in Coq *)
 
 (*
@@ -984,14 +985,52 @@ Proof. simpl. reflexivity. Qed.
 Example test_inc_to_uni : 1 + (bin_to_uni Z) = bin_to_uni (bin_inc Z).
 Proof. simpl. reflexivity. Qed.
 
-(* Theorem bin_inc_plus_one: *)
-(*   forall (b : bin) (n : nat), *)
-(*     n = bin_to_uni b -> 1 + (bin_to_uni b) = 1 + n. *)
+Theorem bin_inc_plus_one:
+  forall (b : bin) (n : nat),
+    n = bin_to_uni b -> 1 + (bin_to_uni b) = 1 + n.
 
-(* FILL IN HERE *)
-(** [] *)
+Proof.
+  intros b n.
+  intros H.
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+Lemma plus_commute:
+  forall (n1 : nat) (n2 : nat),
+    (* n + 1 + n2 = 1 + n1 + n2 *)
+    n1 + (S n2) = S (n1 + n2).
+
+Proof.
+  intros n1 n2.
+  induction n1.
+  simpl.
+  reflexivity.
+  simpl.
+  rewrite -> IHn1.
+  reflexivity.
+Qed.
+
+Theorem convert_inc_commute:
+  forall (b : bin),
+    bin_to_uni (bin_inc b) = 1 + (bin_to_uni b).
+
+Proof.
+  intros b.
+  induction b as [| b' | bp' ].
+  simpl.
+  reflexivity.
+  simpl.
+  reflexivity.
+  simpl.
+  rewrite -> IHbp'.
+  simpl.
+  rewrite -> plus_commute.
+  reflexivity.
 
 (* ###################################################################### *)
+
+(* S ( n + S (n)) = S(S(n + n))
 (** * Optional Material *)
 
 (** ** More on Notation *)
