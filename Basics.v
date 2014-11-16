@@ -896,7 +896,7 @@ Proof.
   intros H3.
   rewrite H3.
   reflexivity.
-
+Qed.
 (** **** Exercise: 3 stars (binary) *)
 (** Consider a different, more efficient representation of natural
     numbers using a binary rather than unary system.  That is, instead
@@ -937,51 +937,56 @@ Inductive bin : Type :=
   | Dub : bin -> bin
   | DubPlus : bin -> bin.
 
-Definition bin_inc (n : bin) : bin :=
+Fixpoint bin_inc (n : bin) : bin :=
   match n with
+    (* 0 => 0 + 1 *)
     | Z => DubPlus Z
+
+    (* 2x => 2x + 1 *)
     | Dub b1 => DubPlus b1
-    | DubPlus b1 => Dub (DubPlus b1)
+
+    (* 2x + 1 => 2x + 1 + 1 = 2x + 2 = 2(x + 1) *)
+    | DubPlus b1 => Dub (bin_inc b1)
   end.
 
-Fixpoint bin_to_uni (n : bin) : nat :=
-  match n with
+(* x => x + 1 *)
+(* 0 => 0 + 1 *)
+(* 2x => 2x + 1 *)
+
+(* 2x + 1 => 2x + 2 = 2(x + 1) *)
+
+(* 2(0) + 1 => 2(2(0) + 1) *)
+(* 2(2x) + 1 = 4x + 1 => 2(2x + 1) = 4x + 2*)
+(* 2(2x + 1) + 1 => 2(2x + 1) + 1 + 1 = 4x + 2 + 1 + 1 = 4x + 4 = 2(2(x + 1))*)
+
+Fixpoint bin_to_uni (b : bin) : nat :=
+  match b with
     | Z => O
-    | Dub b1 => plus (bin_to_uni b1) (bin_to_uni b1)
-    | DubPlus b1 => S (plus (bin_to_uni b1) (bin_to_uni b1))
+    | Dub b1 => (bin_to_uni b1) + (bin_to_uni b1)
+    | DubPlus b1 => S ((bin_to_uni b1) + (bin_to_uni b1))
   end.
 
 Example test_bin_to_uni_zero : bin_to_uni Z = O.
-simpl. reflexivity. Qed.
+Proof. simpl. reflexivity. Qed.
 
 Example test_bin_to_uni_dub_plus : bin_to_uni (DubPlus Z) = S O.
-simpl. reflexivity. Qed.
+Proof. simpl. reflexivity. Qed.
 
 Example test_bin_to_uni_dub : bin_to_uni (Dub (DubPlus Z)) = S (S O).
-simpl. reflexivity. Qed.
+Proof. simpl. reflexivity. Qed.
 
 Example test_inc_zero : bin_inc Z = (DubPlus Z).
-simpl. reflexivity. Qed.
+Proof. simpl. reflexivity. Qed.
 
 Example test_inc_dub_plus : bin_inc (DubPlus Z) = Dub (DubPlus Z).
-simpl. reflexivity. Qed.
+Proof. simpl. reflexivity. Qed.
 
-Example test_inc_dub : bin_inc (Dub Z) = DubPlus Z.
-simpl. reflexivity. Qed.
+Example test_inc_to_uni : 1 + (bin_to_uni Z) = bin_to_uni (bin_inc Z).
+Proof. simpl. reflexivity. Qed.
 
-Theorem assoc_bin_uni :
-  forall (b : bin),
-    bin_to_uni (bin_inc b) = plus (S O) (bin_to_uni b).
-
-Proof.
-  intros b.
-  simpl.
-  destruct b.
-  simpl.
-  reflexivity.
-  simpl.
-  reflexivity.
-
+(* Theorem bin_inc_plus_one: *)
+(*   forall (b : bin) (n : nat), *)
+(*     n = bin_to_uni b -> 1 + (bin_to_uni b) = 1 + n. *)
 
 (* FILL IN HERE *)
 (** [] *)
